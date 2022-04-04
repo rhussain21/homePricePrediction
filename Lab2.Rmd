@@ -1,0 +1,129 @@
+---
+title: "Lab2"
+output: pdf_document
+date: '2022-04-03'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r add libraries, echo = FALSE, warning=FALSE, message = FALSE}
+
+library(tidyverse)
+
+```
+
+
+```{r read data, echo = FALSE, message = FALSE, warning=FALSE}
+
+#initial read. Skip lines with metadata
+qns <- read.csv('./2019_queens.csv', skip = 4)
+bk <- read.csv('./2019_brooklyn.csv', skip = 4)
+bx <- read.csv('./2019_bronx.csv', skip = 4)
+mn <- read.csv('./2019_manhattan.csv', skip = 4)
+si <- read.csv('./2019_statenisland.csv', skip = 4)
+census <- read.csv('./ACSST5Y2019.S1903_data_with_overlays_2021-12-10T101330.csv', skip =1)
+
+#combine borough-level df into single df
+ls <- list(qns, bk, bx, mn, si)
+df <- do.call("rbind", ls)
+
+
+#Remove commas from numerical values and convert to numeric type
+df$SALE.PRICE. <- as.numeric(gsub(",","",df$SALE.PRICE.))
+df$GROSS.SQUARE.FEET. <- as.numeric(gsub(",","",df$GROSS.SQUARE.FEET.))
+
+#parse and format zip code and median income from census data
+incomes <- census %>%
+  select(Geographic.Area.Name, names(census)[163]) %>%
+  separate(col = Geographic.Area.Name, into = c('remove', 'zipcode'), sep = " ") %>%
+  select(-1) %>%
+  rename('median.income' = 2)  %>%
+  lapply(as.integer)
+
+
+#Left join sales data with income by zipcode
+
+df <- rename(df, zipcode = ZIP.CODE.)
+df <- merge(df, incomes, by = 'zipcode', all.x = TRUE)
+
+# Filter for two-dwelling house and rename columns
+df <- df %>%
+  filter(BUILDING.CLASS.CATEGORY. == '02 TWO FAMILY DWELLINGS',
+         SALE.PRICE. > 500000,
+         GROSS.SQUARE.FEET. > 500) %>%
+  rename(c(sqft = GROSS.SQUARE.FEET., commercial.units = COMMERCIAL.UNITS., 
+           boro = BOROUGH., sale.price = SALE.PRICE.))
+
+
+#covert datatypes
+
+df$commercial.units <- as.factor(df$commercial.units )
+df$zipcode <- as.factor(df$zipcode)
+
+#change Borough codes into Borough names
+df$boro <- as.factor(plyr::mapvalues(df$boro,c(1,2,3,4,5), 
+                                     c("Manhattan", "Bronx", "Brooklyn",  
+                                       "Queens", "Staten Island") ))
+
+#create age variable for further evaluation
+df$age <- 2019 - df$YEAR.BUILT.
+
+
+```
+
+```{r, Exploratory Data Analysis}
+
+
+theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size=14)))
+
+# overall distribution of sale price 
+
+df %>% 
+  ggplot(aes(x = log10(sale.price)))+
+  geom_histogram()+
+  ggitle("Distribution of Sale Prices by Borough")
+
+# Sale Price Distribution by borough
+df %>% 
+  ggplot(aes(x = log10(sale.price)))+
+  geom_histogram()+
+  facet_grid(rows = vars (boro), scales = "free")+
+  ggitle("Distribution of Sale Prices by Borough")
+
+
+#price in commercial vs non commercial unit
+df  %>% 
+  ggplot(aes(x = log(sale.price)))+
+  geom_histogram(bins = 50)+
+  facet_grid(rows = vars(commercial.units) , scales = "free")+
+  ggtitle("Sale Price of Two-Family Dwellings with and w/o Commercial Units")
+
+
+
+
+# % (log10) unit change sqft vs % change in sqft. facet by commercial vs non commercial unit
+df %>%
+  ggplot(aes(x = log10(sqft), y = log(sale.price)))+
+  geom_jitter(alpha = 0.1)+
+  facet_grid(rows = vars(commercial.units) , scales = "free")+
+  ggtitle("Sq. Ft vs Sale Price")
+  
+
+
+#distribution of age
+
+df  %>% 
+  ggplot(aes(x = (age)))+
+  geom_histogram()+
+  ggitle("Distribution of Property Age")
+
+
+# age vs price
+df  %>% 
+  ggplot(aes(x = age, y = log10(sale.price)))+
+  geom_jitter(alpha = 0.25)
+```
+
