@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r add libraries, echo = FALSE, warning=FALSE, message = FALSE}
 
 library(tidyverse)
+library(ggplot2)
+library(stargazer)
 
 ```
 
@@ -60,6 +62,9 @@ df <- df %>%
 
 #covert datatypes
 
+
+
+
 df$commercial.units <- as.factor(df$commercial.units )
 df$zipcode <- as.factor(df$zipcode)
 
@@ -72,6 +77,9 @@ df$boro <- as.factor(plyr::mapvalues(df$boro,c(1,2,3,4,5),
 df$age <- 2019 - df$YEAR.BUILT.
 
 
+df <- df %>%
+  select(zipcode, boro, commercial.units, sqft, sale.price, median.income, age)
+df <- na.omit(df)
 ```
 
 ```{r, Exploratory Data Analysis}
@@ -82,16 +90,16 @@ theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size
 # overall distribution of sale price 
 
 df %>% 
-  ggplot(aes(x = log10(sale.price)))+
-  geom_histogram()+
-  ggitle("Distribution of Sale Prices by Borough")
+  ggplot(aes(x = log(sale.price)))+
+  geom_histogram() +
+  ggtitle("Distribution of Sale Price")
 
 # Sale Price Distribution by borough
 df %>% 
-  ggplot(aes(x = log10(sale.price)))+
+  ggplot(aes(x = log(sale.price)))+
   geom_histogram()+
   facet_grid(rows = vars (boro), scales = "free")+
-  ggitle("Distribution of Sale Prices by Borough")
+  ggtitle("Distribution of Sale Prices by Borough")
 
 
 #price in commercial vs non commercial unit
@@ -106,7 +114,7 @@ df  %>%
 
 # % (log10) unit change sqft vs % change in sqft. facet by commercial vs non commercial unit
 df %>%
-  ggplot(aes(x = log10(sqft), y = log(sale.price)))+
+  ggplot(aes(x = log(sqft), y = log(sale.price)))+
   geom_jitter(alpha = 0.1)+
   facet_grid(rows = vars(commercial.units) , scales = "free")+
   ggtitle("Sq. Ft vs Sale Price")
@@ -118,7 +126,15 @@ df %>%
 df  %>% 
   ggplot(aes(x = (age)))+
   geom_histogram()+
-  ggitle("Distribution of Property Age")
+  ggtitle("Distribution of Property Age")
+
+#distribution of median income
+
+df  %>% 
+  ggplot(aes(x = (median.income)))+
+  geom_histogram()+
+  ggtitle("Distribution of Median Income")
+
 
 
 # age vs price
@@ -127,3 +143,40 @@ df  %>%
   geom_jitter(alpha = 0.25)
 ```
 
+**3. Modeling
+
+***3.1 Base Model
+
+
+
+$$sale\_price =  \beta_0 + \beta_1commecial\_units$$
+
+***3.2 Second Model
+
+$$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage)$$
+***3.3 Thrid Model
+$$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age)$$
+***3.3 Fourth Model
+$$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age) + \beta_3(median\_income)$$
+
+```{r, model}
+
+model1 <- lm(log(sale.price) ~ commercial.units, data = df)
+model2 <- lm(log(sale.price) ~ commercial.units + log(sqft), data = df)
+model3 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age, data = df)
+model4 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.income, data = df)
+
+stargazer(
+  model1, model2, model3, model4,
+  type = 'text'
+)
+
+
+anova(model1, model2, test = 'F')
+anova(model2, model3, test = 'F')
+anova(model3, model4, test = 'F')
+
+
+
+
+```
