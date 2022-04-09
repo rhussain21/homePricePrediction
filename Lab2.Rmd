@@ -8,6 +8,7 @@ date: '2022-04-03'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ```{r add libraries, echo = FALSE, warning=FALSE, message = FALSE}
 
 library(tidyverse)
@@ -15,6 +16,7 @@ library(ggplot2)
 library(stargazer)
 
 ```
+
 
 ```{r read data, echo = FALSE, message = FALSE, warning=FALSE}
 
@@ -74,10 +76,18 @@ df$boro <- as.factor(plyr::mapvalues(df$boro,c(1,2,3,4,5),
 #create age variable for further evaluation
 df$age <- 2019 - df$YEAR.BUILT.
 
-#final dataframe
+
 df <- df %>%
   select(zipcode, boro, commercial.units, sqft, sale.price, median.income, age)
 df <- na.omit(df)
+
+#Split dataset 30% for EDA and remaining 70% for model testing
+#for EDA
+samplesize <- round(nrow(df)*(.3))
+df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
+
+#for modeling
+df_test <- setdiff(df, sampleDf)
 ```
 
 ```{r, Exploratory Data Analysis}
@@ -87,13 +97,13 @@ theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size
 
 # overall distribution of sale price 
 
-df %>% 
+df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram() +
   ggtitle("Distribution of Sale Price")
 
 # Sale Price Distribution by borough
-df %>% 
+df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram()+
   facet_grid(rows = vars (boro), scales = "free")+
@@ -101,72 +111,71 @@ df %>%
 
 
 #price in commercial vs non commercial unit
-df  %>% 
+df_EDA  %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram(bins = 50)+
   facet_grid(rows = vars(commercial.units) , scales = "free")+
   ggtitle("Sale Price of Two-Family Dwellings with and w/o Commercial Units")
 
 
-
-
 # % (log10) unit change sqft vs % change in sqft. facet by commercial vs non commercial unit
-df %>%
+df_EDA %>%
   ggplot(aes(x = log(sqft), y = log(sale.price)))+
   geom_jitter(alpha = 0.1)+
   facet_grid(rows = vars(commercial.units) , scales = "free")+
   ggtitle("Sq. Ft vs Sale Price")
   
 
-
 #distribution of age
 
-df  %>% 
+df_EDA  %>% 
   ggplot(aes(x = (age)))+
   geom_histogram()+
   ggtitle("Distribution of Property Age")
 
 #distribution of median income
 
-df  %>% 
+df_EDA  %>% 
   ggplot(aes(x = (median.income)))+
   geom_histogram()+
   ggtitle("Distribution of Median Income")
 
+#distribution of median income on log scale. The distribution is about the same
+#so no transformation would be necessary
+df_EDA  %>% 
+  ggplot(aes(x = (median.income)))+
+  geom_histogram()+
+  ggtitle("Distribution of % Change in Median Income")
 
 
 # age vs price
-df  %>% 
+df_EDA  %>% 
   ggplot(aes(x = age, y = log10(sale.price)))+
   geom_jitter(alpha = 0.25)
 ```
 
-## 3. Modeling
+**3. Modeling
 
-### 3.1 Base Model
+***3.1 Base Model
+
+
 
 $$sale\_price =  \beta_0 + \beta_1commecial\_units$$
 
-### 3.2 Second Model
+***3.2 Second Model
 
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage)$$
-
-### **3.3 Third Model** 
-
+***3.3 Thrid Model
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age)$$
-
-### 3.4 Fourth Model 
-
+***3.3 Fourth Model
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age) + \beta_3(median\_income)$$
-
-## 4. Results
 
 ```{r, model}
 
-model1 <- lm(log(sale.price) ~ commercial.units, data = df)
-model2 <- lm(log(sale.price) ~ commercial.units + log(sqft), data = df)
-model3 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age, data = df)
-model4 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.income, data = df)
+model1 <- lm(log(sale.price) ~ commercial.units, data = df_test)
+model2 <- lm(log(sale.price) ~ commercial.units + log(sqft), data = df_test)
+model3 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age, data = df_test)
+model4 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.income, data = df_test)
 
 stargazer(
   model1, model2, model3, model4,
@@ -174,14 +183,11 @@ stargazer(
 )
 
 
-
-```
-
-
-```{r, model}
-
 anova(model1, model2, test = 'F')
 anova(model2, model3, test = 'F')
 anova(model3, model4, test = 'F')
+
+
+
 
 ```
