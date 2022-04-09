@@ -8,7 +8,6 @@ date: '2022-04-03'
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r add libraries, echo = FALSE, warning=FALSE, message = FALSE}
 
 library(tidyverse)
@@ -16,7 +15,6 @@ library(ggplot2)
 library(stargazer)
 
 ```
-
 
 ```{r read data, echo = FALSE, message = FALSE, warning=FALSE}
 
@@ -76,7 +74,7 @@ df$boro <- as.factor(plyr::mapvalues(df$boro,c(1,2,3,4,5),
 #create age variable for further evaluation
 df$age <- 2019 - df$YEAR.BUILT.
 
-
+#final dataframe
 df <- df %>%
   select(zipcode, boro, commercial.units, sqft, sale.price, median.income, age)
 df <- na.omit(df)
@@ -143,21 +141,25 @@ df  %>%
   geom_jitter(alpha = 0.25)
 ```
 
-**3. Modeling
+## 3. Modeling
 
-***3.1 Base Model
-
-
+### 3.1 Base Model
 
 $$sale\_price =  \beta_0 + \beta_1commecial\_units$$
 
-***3.2 Second Model
+### 3.2 Second Model
 
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage)$$
-***3.3 Thrid Model
+
+### **3.3 Third Model** 
+
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age)$$
-***3.3 Fourth Model
+
+### 3.4 Fourth Model 
+
 $$sale\_price =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3(property\_age) + \beta_3(median\_income)$$
+
+## 4. Results
 
 ```{r, model}
 
@@ -172,11 +174,14 @@ stargazer(
 )
 
 
+
+```
+
+
+```{r, model}
+
 anova(model1, model2, test = 'F')
 anova(model2, model3, test = 'F')
 anova(model3, model4, test = 'F')
-
-
-
 
 ```
