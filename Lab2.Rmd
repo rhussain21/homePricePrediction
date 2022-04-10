@@ -54,7 +54,7 @@ df <- merge(df, incomes, by = 'zipcode', all.x = TRUE)
 # Filter for two-dwelling house and rename columns
 df <- df %>%
   filter(BUILDING.CLASS.CATEGORY. == '02 TWO FAMILY DWELLINGS',
-         SALE.PRICE. > 500000,
+         SALE.PRICE. > 400000,
          GROSS.SQUARE.FEET. > 500) %>%
   rename(c(sqft = GROSS.SQUARE.FEET., commercial.units = COMMERCIAL.UNITS., 
            boro = BOROUGH., sale.price = SALE.PRICE.))
@@ -87,7 +87,7 @@ samplesize <- round(nrow(df)*(.3))
 df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
 
 #for modeling
-df_test <- setdiff(df, sampleDf)
+df_test <- setdiff(df, df_EDA)
 ```
 
 ```{r, Exploratory Data Analysis}
@@ -176,9 +176,10 @@ model1 <- lm(log(sale.price) ~ commercial.units, data = df_test)
 model2 <- lm(log(sale.price) ~ commercial.units + log(sqft), data = df_test)
 model3 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age, data = df_test)
 model4 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.income, data = df_test)
+model5 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.income + boro, data = df_test)
 
 stargazer(
-  model1, model2, model3, model4,
+  model1, model2, model3, model4, model5,
   type = 'text'
 )
 
@@ -186,8 +187,6 @@ stargazer(
 anova(model1, model2, test = 'F')
 anova(model2, model3, test = 'F')
 anova(model3, model4, test = 'F')
-
-
-
+anova(model4, model5, test = 'F')
 
 ```
