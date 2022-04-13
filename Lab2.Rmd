@@ -15,6 +15,7 @@ library(tidyverse)
 library(ggplot2)
 library(stargazer)
 
+
 ```
 
 
@@ -90,7 +91,7 @@ df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
 df_test <- setdiff(df, df_EDA)
 ```
 
-```{r, Exploratory Data Analysis}
+```{r, Exploratory Data Analysis Fig 1}
 
 
 theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size=14)))
@@ -98,60 +99,103 @@ theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size
 # overall distribution of sale price 
 
 df_EDA %>% 
+  ggplot(aes(x = sale.price))+
+  geom_histogram() +
+  ggtitle("Fig 1. Distribution of Sale Price")
+
+df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram() +
-  ggtitle("Distribution of Sale Price")
+  ggtitle("Fig 2. Distribution of Sale Price")
+```
 
+
+```{r, Exploratory Data Analysis Fig 2}
 # Sale Price Distribution by borough
 df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram()+
   facet_grid(rows = vars (boro), scales = "free")+
-  ggtitle("Distribution of Sale Prices by Borough")
+  ggtitle("Fig 2. Distribution of Sale Prices by Borough")
+```
 
-
+```{r, Exploratory Data Analysis Fig 3}
 #price in commercial vs non commercial unit
 df_EDA  %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram(bins = 50)+
   facet_grid(rows = vars(commercial.units) , scales = "free")+
-  ggtitle("Sale Price of Two-Family Dwellings with and w/o Commercial Units")
+  ggtitle("Fig 3. Sale Price of Two-Family Dwellings with and w/o Commercial Units")
+
+```
 
 
+```{r, Exploratory Data Analysis Fig 4}
 # % (log10) unit change sqft vs % change in sqft. facet by commercial vs non commercial unit
 df_EDA %>%
   ggplot(aes(x = log(sqft), y = log(sale.price)))+
   geom_jitter(alpha = 0.1)+
   facet_grid(rows = vars(commercial.units) , scales = "free")+
-  ggtitle("Sq. Ft vs Sale Price")
-  
+  ggtitle("Fig 4. Sq. Ft vs Sale Price")
 
+
+df_EDA %>%
+  ggplot() + 
+  aes(x = sqft, y =log(sale.price), color=commercial.units) +
+  geom_point() +
+  labs(
+    title = 'Fig 4. Sq. Ft vs Sale Price',
+    color = 'Commercial units',
+  )
+```  
+
+```{r, Exploratory Data Analysis Fig 5}
 #distribution of age
 
 df_EDA  %>% 
   ggplot(aes(x = (age)))+
   geom_histogram()+
-  ggtitle("Distribution of Property Age")
+  ggtitle("Fig 5. Distribution of Property Age")
+```
 
+```{r, Exploratory Data Analysis Fig 6}
 #distribution of median income
 
 df_EDA  %>% 
   ggplot(aes(x = (median.income)))+
   geom_histogram()+
-  ggtitle("Distribution of Median Income")
+  ggtitle("Fig 6. Distribution of Median Income")
+```
 
+```{r, Exploratory Data Analysis Fig 7}
 #distribution of median income on log scale. The distribution is about the same
 #so no transformation would be necessary
 df_EDA  %>% 
   ggplot(aes(x = (median.income)))+
   geom_histogram()+
-  ggtitle("Distribution of % Change in Median Income")
+  ggtitle("Fig 7. Distribution of % Change in Median Income")
 
+df_EDA %>%
+  ggplot() + 
+  aes(x = median.income, y =log(sale.price), color=commercial.units) +
+  geom_point() +
+  labs(
+    title = 'Fig 7. Median Income vs Sale Price',
+    color = 'Commercial units',
+  )
+```
 
+```{r, Exploratory Data Analysis Fig 8}
 # age vs price
-df_EDA  %>% 
-  ggplot(aes(x = age, y = log10(sale.price)))+
-  geom_jitter(alpha = 0.25)
+df_EDA %>%
+  ggplot() + 
+  aes(x = age, y =log(sale.price), color=commercial.units) +
+  geom_point() +
+  geom_jitter(alpha = 0.25)+
+  labs(
+    title = 'Fig 8. Age vs Sale Price',
+    color = 'Commercial units',
+  )
 ```
 
 **3. Modeling
@@ -180,13 +224,22 @@ model5 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.incom
 
 stargazer(
   model1, model2, model3, model4, model5,
+    se = list(
+    sqrt(diag(vcovHC(model1))),
+    sqrt(diag(vcovHC(model2))),
+    sqrt(diag(vcovHC(model3))),
+    sqrt(diag(vcovHC(model4))),
+    sqrt(diag(vcovHC(model5)))),
   type = 'text'
 )
+```
 
-
+```{r, test model}
 anova(model1, model2, test = 'F')
 anova(model2, model3, test = 'F')
 anova(model3, model4, test = 'F')
 anova(model4, model5, test = 'F')
 
+plot(model5, which = 1)
+df_test$res <- model5$residuals
 ```
