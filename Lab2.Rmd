@@ -52,14 +52,14 @@ incomes <- census %>%
 df <- rename(df, zipcode = ZIP.CODE.)
 df <- merge(df, incomes, by = 'zipcode', all.x = TRUE)
 
+
 # Filter for two-dwelling house and rename columns
 df <- df %>%
   filter(BUILDING.CLASS.CATEGORY. == '02 TWO FAMILY DWELLINGS',
-         SALE.PRICE. > 400000,
-         GROSS.SQUARE.FEET. > 500) %>%
+         SALE.PRICE. > 405000,
+         GROSS.SQUARE.FEET. > 1120) %>%
   rename(c(sqft = GROSS.SQUARE.FEET., commercial.units = COMMERCIAL.UNITS., 
            boro = BOROUGH., sale.price = SALE.PRICE.))
-
 
 #covert datatypes
 
@@ -84,7 +84,6 @@ df <- na.omit(df)
 
 #Split dataset 30% for EDA and remaining 70% for model testing
 #for EDA
-
 set.seed(12345)
 samplesize <- round(nrow(df)*(.3))
 df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
@@ -126,15 +125,6 @@ df_EDA  %>%
   geom_histogram(bins = 50, fill="#5297cc", colour='black')+
   facet_grid(rows = vars(commercial.units))+
   ggtitle("Sale Price of Two-Family Dwellings with and w/o Commercial Units")
-
-df_EDA %>%
-  ggplot() + 
-  aes(x = commercial.units, y =log(sale.price), color=commercial.units) +
-  geom_point() +
-  labs(
-    title = 'Fig 7. Square footage vs Sale Price',
-    color = 'Commercial units',
-  )
 
 ```
 
@@ -245,7 +235,7 @@ stargazer(
     sqrt(diag(vcovHC(model3))),
     sqrt(diag(vcovHC(model4))),
     sqrt(diag(vcovHC(model5)))),
-  type = 'latex'
+  type = 'text'
 )
 ```
 
