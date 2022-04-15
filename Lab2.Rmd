@@ -84,6 +84,8 @@ df <- na.omit(df)
 
 #Split dataset 30% for EDA and remaining 70% for model testing
 #for EDA
+
+set.seed(12345)
 samplesize <- round(nrow(df)*(.3))
 df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
 
@@ -177,6 +179,13 @@ df_EDA %>%
     title = 'Fig 9. Age vs Sale Price',
     color = 'Commercial units',
   )
+
+df_EDA %>%
+  ggplot() + 
+  aes(x =log(sqft), y =log(sale.price), color=commercial.units) +
+  geom_jitter(alpha = 0.5) +
+  facet_grid(rows = vars(commercial.units))+
+  ggtitle("Sale Price vs. Square Footage by Commercial Units")
 ```
 
 ```{r, Exploratory Data Analysis Fig 6}
@@ -247,5 +256,8 @@ anova(model3, model4, test = 'F')
 anova(model4, model5, test = 'F')
 
 plot(model5, which = 1)
+plot(model5, which = 2)
+plot(model5, which = 3)
+plot(model5, which = 4)
 df_test$res <- model5$residuals
 ```
