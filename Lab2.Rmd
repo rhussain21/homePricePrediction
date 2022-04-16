@@ -148,7 +148,7 @@ We conducted a preliminary analysis to understand the distribution of our outcom
 In Fig 3 we can observe that the variable sale price is not normally distributed. After applying a logarithmic transformation to the variable, the distribution looks more symmetrical, although the right-skew shows extreme outliers for expensive properties as can be observed on Fig 4. 
 
 
-```{r, Exploratory Data Analysis Fig 3. and Fig 4., echo = FALSE, warning=FALSE, message= FALSE, fig.show='hold',fig.align='center',out.width="50%", fig.height= 4 }
+```{r, Exploratory Data Analysis Fig 3. and Fig 4., echo = FALSE, warning=FALSE, message= FALSE, out.width="50%", fig.height= 4, fig.align='center', fig.show='hold' }
 theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size=14)))
 
 # overall distribution of sale price 
@@ -169,7 +169,7 @@ df_EDA %>%
 In Fig 5, looking at the sale price distribution divided by properties with and without commercial units we can observe that there is a smaller number of observations that include a commercial unit. Furthermore, the distribution of the observations without commercial units(0) are right-skewed with some outliers for high sale prices > $1.2M. Fig. 6, shows in more detail the distribution of the property sale price with commercial units for Manhattan. Iit can be observed that the majority of the values have sale prices below $3.2M, except for few outliers with values close to $5M .
 
 
-```{r, Exploratory Data Analysis Fig 5 and Fig 6, echo = FALSE, warning=FALSE, message= FALSE, fig.show='hold',fig.align='center',out.width="50%", fig.height= 4 }
+```{r, Exploratory Data Analysis Fig 5 and Fig 6, echo = FALSE, warning=FALSE, message= FALSE, fig.align='center',fig.show='hold', out.width="50%", fig.height= 4 }
 #price in commercial vs non commercial unit
 df_EDA  %>% 
   ggplot(aes(x = log(sale.price), fill=commercial.units))+
@@ -292,8 +292,8 @@ Also, for each variable, we hypothesize that the addition of square footage, the
 The base model includes the sale price as the outcome variable and the commercial units as explanatory variable. Of the possible modifications that can be made to a two-dwelling house, we are exploring whether commercial units can be a major differentiator for sale price.
 
 $$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units$$
-```{r, echo = FALSE, fig.align='center', out.width="49%",}
-include_graphics('./images/BaseModel.png')
+```{r, echo = FALSE, fig.align='center', }
+include_graphics('./images/Model1.png')
 ```
 
 
@@ -304,7 +304,7 @@ The distribution of the square footage is right skewed, so we have decided to pe
 
 
 $$ln(sale\_price)  =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage)$$
-```{r, echo = FALSE, fig.align='center', out.width="49%",}
+```{r, echo = FALSE, fig.align='center', }
 include_graphics('./images/Model3.png')
 ```
 
@@ -313,7 +313,7 @@ include_graphics('./images/Model3.png')
 In the third model, we added the age of the property as another control variable. Age is a relevant factor in real estate as it captures characteristics, such as home design, that are desirable for some home buyers. Newer homes have modern features while older homes may have historical significance. We decided not to use any transformations on this variable because it is already represented in a unit of years and performing a log function skewed the distribution. 
 
 $$ln(sale\_price)  =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age$$
-```{r, echo = FALSE, fig.align='center', out.width="49%",}
+```{r, echo = FALSE, fig.align='center', }
 include_graphics('./images/Model3.png')
 ```
 
@@ -325,7 +325,7 @@ The quality and price of a house is often influenced by the wealth and amenities
 
 
 $$ln(sale\_price)  =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age + \beta_4median\_income$$
-```{r, echo = FALSE, fig.align='center', out.width="49%",}
+```{r, echo = FALSE, fig.align='center'}
 include_graphics('./images/Model4.png')
 ```
 
@@ -336,7 +336,7 @@ The five boroughs of New York City – Brooklyn, Queens, Manhattan, Staten Islan
 
 
 $$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age + \beta_4median\_income+ \beta_5borough$$
-```{r, echo = FALSE, fig.align='center', out.width="49%",}
+```{r, echo = FALSE, fig.align='center'}
 include_graphics('./images/Model5.png')
 ```
 
@@ -366,7 +366,7 @@ stargazer(
     sqrt(diag(vcovHC(model3))),
     sqrt(diag(vcovHC(model4))),
     sqrt(diag(vcovHC(model5)))),
-  type = 'text',
+  type = 'latex',
   title = 'Table 2. Summary of regression results'
 )
 ```
