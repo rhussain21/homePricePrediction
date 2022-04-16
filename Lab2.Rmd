@@ -427,10 +427,10 @@ While the income variables in our models were shown to be statistically signific
 
 There are a few limitations to the model as related to large sample assumptions for the classical linear model. The model uses data with unique observations. However, one may argue that home sales in the same zip code are dependent on each other as the sale of one property could increase the property value and sale price of a neighboring property. The variables cannot be represented in linear combinations of another so there is no collinearity issue. 
 
-The plots below (figure 16) provide insight into the linear conditional expectation, homoscedasticity, and normality of the residuals of our fifth model. In the Residuals vs Fitted plot, the mean of the residuals is close to 0, except for larger sale prices numbers (greater than exp(14) or $1.2M) the residuals gradually increase. We see the same pattern for the variance of the residuals (Scale-Location plot) which is a visual test for homoscedasticity. Therefore, the homoscedastic error assumption of the classical linear model is met. Last, there is a heavy right tail in the Normal Q-Q plot which means that the residuals are not normally distributed. These indicate that there is another missing feature that can better explain the relationship with higher sale prices.
+The plots below provide insight into the linear conditional expectation, homoscedasticity, and normality of the residuals of our fifth model. In the Residuals vs Fitted plot, the mean of the residuals is close to 0, except for larger sale prices numbers (greater than exp(14) or $1.2M) the residuals gradually increase. We see the same pattern for the variance of the residuals (Scale-Location plot) which is a visual test for homoscedasticity. Therefore, the homoscedastic error assumption of the classical linear model is met. Last, there is a heavy right tail in the Normal Q-Q plot which means that the residuals are not normally distributed. These indicate that there is another missing feature that can better explain the relationship with higher sale prices.
 
 \setcounter{figure}{15}
-```{r plots for CLM assumptions, warning=FALSE, message=FALSE, echo = FALSE, fig.show='hold',fig.align='center',out.width="70%", fig.height= 4, fig.cap= "Plots for CLM Assumptions"}
+```{r plots for CLM assumptions, warning=FALSE, message=FALSE, echo = FALSE,  fig.cap= "Plots for CLM Assumptions"}
 
 plot(model5, which = 1)
 plot(model5, which = 2)
