@@ -46,12 +46,9 @@ incomes <- census %>%
   rename('median.income' = 2)  %>%
   lapply(as.integer)
 
-
 #Left join sales data with income by zipcode
-
 df <- rename(df, zipcode = ZIP.CODE.)
 df <- merge(df, incomes, by = 'zipcode', all.x = TRUE)
-
 
 # Filter for two-dwelling house and rename columns
 df <- df %>%
@@ -59,13 +56,10 @@ df <- df %>%
          SALE.PRICE. > 405000,
          GROSS.SQUARE.FEET. > 1120) %>%
   rename(c(sqft = GROSS.SQUARE.FEET., commercial.units = COMMERCIAL.UNITS., 
-           boro = BOROUGH., sale.price = SALE.PRICE.))
+           boro = BOROUGH., sale.price = SALE.PRICE., block = BLOCK., lot = LOT.,
+           address =ADDRESS., apt = APARTMENT.NUMBER. ))
 
 #covert datatypes
-
-
-
-
 df$commercial.units <- as.factor(df$commercial.units )
 df$zipcode <- as.factor(df$zipcode)
 
@@ -77,10 +71,13 @@ df$boro <- as.factor(plyr::mapvalues(df$boro,c(1,2,3,4,5),
 #create age variable for further evaluation
 df$age <- 2019 - df$YEAR.BUILT.
 
+#Remove Easement variable which has all NA's. 
+#Leaving this would create errors when dropping NA's across entire dataframe
+df <- df %>% select(-8) 
 
-df <- df %>%
-  select(zipcode, boro, commercial.units, sqft, sale.price, median.income, age)
+#Remove NA's and duplicate values
 df <- na.omit(df)
+df <- df[!duplicated(df),]
 
 #Split dataset 30% for EDA and remaining 70% for model testing
 #for EDA
