@@ -89,7 +89,7 @@ df_EDA <- df[sample(nrow(df), size = samplesize, replace = FALSE), ]
 df_test <- setdiff(df, df_EDA)
 ```
 
-```{r, Exploratory Data Analysis Fig 1}
+```{r, Exploratory Data Analysis Fig 3. and Fig 4.}
 theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size=14)))
 
 # overall distribution of sale price 
@@ -97,13 +97,32 @@ theme_set(theme(plot.title = element_text(hjust = 0.5), text = element_text(size
 df_EDA %>% 
   ggplot(aes(x = sale.price))+
   geom_histogram(fill="#5297cc", colour='black') +
-  ggtitle("Distribution of Sale Price")
+  ggtitle("Fig 3. Sale Price of Two-Family Dwellings")
 
 df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram(fill="#5297cc", colour='black') +
-  ggtitle("Distribution of Sale Price")
+  ggtitle("Fig 4. Transformed Sale Price of Two-Family Dwellings")
 ```
+
+
+```{r, Exploratory Data Analysis Fig 5 and Fig 6}
+#price in commercial vs non commercial unit
+df_EDA  %>% 
+  ggplot(aes(x = log(sale.price), fill=commercial.units))+
+  geom_histogram(bins = 30,  colour='black')+
+  facet_grid(rows = vars(commercial.units))+
+  labs(title = str_wrap("Fig 5. Sale Price of Two-Family Dwellings with and w/o Commercial Units", 60))
+
+df_EDA %>%
+  filter(commercial.units == 1) %>%
+  ggplot(aes(x = log(sale.price)))+
+  geom_histogram(bins = 30, fill='#00BFC4', colour='black') +
+  labs(title = str_wrap("Fig 6. Sale Price of Two-Family Dwellings with Commercial Units in Manhattan", 60))
+
+```
+
+
 
 
 ```{r, Exploratory Data Analysis Fig 4}
@@ -111,92 +130,75 @@ df_EDA %>%
 df_EDA %>% 
   ggplot(aes(x = log(sale.price)))+
   geom_histogram(fill="#5297cc", colour='black', bin=30)+
-  facet_grid(rows = vars (boro))+
-  ggtitle("Distribution of Sale Prices by Borough")
-```
+  facet_grid(rows = vars (boro), labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
+  ggtitle("Fig 7. Sale Prices of Two-Family Dwellings by Borough")
 
-```{r, Exploratory Data Analysis Fig 3}
-#price in commercial vs non commercial unit
-df_EDA  %>% 
+df_EDA %>%
+  filter(boro == 'Manhattan') %>%
   ggplot(aes(x = log(sale.price)))+
-  geom_histogram(bins = 50, fill="#5297cc", colour='black')+
-  facet_grid(rows = vars(commercial.units))+
-  ggtitle("Sale Price of Two-Family Dwellings with and w/o Commercial Units")
-
+  geom_histogram(bins = 30, fill='#5297cc', colour='black') +
+  ggtitle("Fig 8. Sale Prices of Two-Family Dwellings in Manhattan")
 ```
 
 
-```{r, Exploratory Data Analysis Fig 5}
+```{r, Exploratory Data Analysis Fig 9, Fig 10 and Fig 11}
 # % (log10) unit change sqft vs % change in sqft. facet by commercial vs non commercial unit
 
 df_EDA %>% 
   ggplot(aes(x = sqft))+
   geom_histogram(fill="#5297cc", colour='black') +
-  ggtitle("Fig 5. Distribution of Square footage")
+  ggtitle("Fig 9. Distribution of Two-Family Dwellings Square footage")
 
 df_EDA %>% 
   ggplot(aes(x = log(sqft)))+
   geom_histogram(fill="#5297cc", colour='black') +
-  ggtitle("Fig 6. Distribution of Square footage")
-
-df_EDA %>%
-  ggplot() + 
-  aes(x = log(sqft), y =log(sale.price), color=commercial.units) +
-  geom_point() +
-  labs(
-    title = 'Fig 7. Square footage vs Sale Price',
-    color = 'Commercial units',
-  )
-
-```  
-
-```{r, Exploratory Data Analysis Fig 8 and Fig 9}
-#distribution of age
-
-df_EDA  %>% 
-  ggplot(aes(x = (age)))+
-  geom_histogram(fill="#5297cc", colour='black')+
-  ggtitle("Fig 8. Distribution of Property Age")
-
-df_EDA %>%
-  ggplot() + 
-  aes(x = age, y =log(sale.price), color=commercial.units) +
-  geom_point() +
-  labs(
-    title = 'Fig 9. Age vs Sale Price',
-    color = 'Commercial units',
-  )
+  ggtitle("Fig 10. Transformed Distribution of Two-Family Dwellings of Square footage")
 
 df_EDA %>%
   ggplot() + 
   aes(x =log(sqft), y =log(sale.price), color=commercial.units) +
   geom_jitter(alpha = 0.5) +
   facet_grid(rows = vars(commercial.units))+
-  ggtitle("Sale Price vs. Square Footage by Commercial Units")
-```
+  ggtitle("Fig 11. Sale Price of Two-Family Dwellings vs. Square Footage by Commercial Units")
 
-```{r, Exploratory Data Analysis Fig 6}
-#distribution of median income
+```  
+
+```{r, Exploratory Data Analysis Fig 12. and Fig 13.}
+#distribution of age
 
 df_EDA  %>% 
-  ggplot(aes(x = (median.income)))+
-  geom_histogram()+
-  ggtitle("Fig 6. Distribution of Median Income")
+  ggplot(aes(x = (age)))+
+  geom_histogram(fill="#5297cc", colour='black', bins="30")+
+  ggtitle("Fig 12. Distribution of Two-Family Dwellings Property Age")
+
+df_EDA %>%
+  ggplot() + 
+  aes(x = age, y =log(sale.price), color=commercial.units) +
+  geom_point() +
+  geom_jitter(alpha = 0.5) +
+  labs(
+    title = str_wrap("Fig 13. Age of Two-Family Dwellings vs Sale Price by Commercial Units", 60),
+    color = 'Commercial units'
+  )
 ```
 
-```{r, Exploratory Data Analysis Fig 7}
+```{r, Exploratory Data Analysis Fig 14}
 #distribution of median income on log scale. The distribution is about the same
 #so no transformation would be necessary
 df_EDA  %>% 
   ggplot(aes(x = (median.income)))+
-  geom_histogram(fill="#5297cc", colour='black')+
-  ggtitle("Fig 10. Distribution of % Change in Median Income")
+  geom_histogram(fill="#5297cc", colour='black', bin=30)+
+  facet_grid(rows = vars (boro), labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
+  ggtitle("Fig 14. Distribution of Two-Family Dwellings Median Income per Borough")
 
-df_EDA  %>% 
+
+df_EDA %>%
+  filter(boro == 'Manhattan') %>%
   ggplot(aes(x = (median.income)))+
-  geom_histogram(fill="#5297cc", colour='black')+
-  facet_grid(rows = vars(boro))+
-  ggtitle("Distribution of Median Income per Borough")
+  geom_histogram(fill="#5297cc", colour='black', bin=30)+
+  facet_grid(rows = vars (boro), labeller = label_wrap_gen(width = 2, multi_line = TRUE))+
+  ggtitle("Fig 15. Distribution of Two-Family Dwellings Median Income in Manhattan")
+
 ```
 
 
@@ -232,16 +234,26 @@ stargazer(
     sqrt(diag(vcovHC(model3))),
     sqrt(diag(vcovHC(model4))),
     sqrt(diag(vcovHC(model5)))),
-  type = 'text'
+  type = 'text',
+  title = 'Table 2. Summary of regression results'
 )
 ```
 
-```{r, test model}
+```{r, test model1 and model2}
 anova(model1, model2, test = 'F')
-anova(model2, model3, test = 'F')
-anova(model3, model4, test = 'F')
-anova(model4, model5, test = 'F')
+```
 
+```{r, test model2 and model3}
+anova(model2, model3, test = 'F')
+```
+
+```{r, test model3 and model4}
+anova(model3, model4, test = 'F')
+```
+
+```{r, test model4 and model5}
+anova(model4, model5, test = 'F')
+```
 plot(model5, which = 1)
 plot(model5, which = 2)
 plot(model5, which = 3)
