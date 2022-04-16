@@ -1,7 +1,8 @@
 ---
-title: "Lab2"
+title: "Impact of commercial units on the sale price of properties in New York City"
+author: "Carla Cortez, Redwan Hussain, Opeyemi Olanipekun"
 output: pdf_document
-date: '2022-04-03'
+date: 'April 16, 2022'
 ---
 
 
@@ -99,7 +100,7 @@ How does the addition of a commercial unit impact the sale price of Two-Family D
 
 
 
-```{r, fig.show='hold',fig.align='center', out.width="49%", out.height="20%" , echo= FALSE, fig.cap = "Examples of two-family dwellings with a commercial unit (right) and without (left)"}
+```{r, fig.show='hold',fig.align='center', out.width="49%", out.height="20%" , echo= FALSE, fig.cap = "Two-family dwelling without a commercial unit (left). Figure 2: Two-family dwelling with commercial unit (right)"}
 
 include_graphics(c('./images/dwelling_without_commercial.png', './images/dwelling_with_commercial.png'))
 ```
@@ -292,7 +293,7 @@ Also, for each variable, we hypothesize that the addition of square footage, the
 The base model includes the sale price as the outcome variable and the commercial units as explanatory variable. Of the possible modifications that can be made to a two-dwelling house, we are exploring whether commercial units can be a major differentiator for sale price.
 
 $$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units$$
-```{r, echo = FALSE, fig.align='center', }
+```{r, echo = FALSE, fig.align='center', out.width="40%", fig.height= 3}
 include_graphics('./images/Model1.png')
 ```
 
@@ -304,7 +305,7 @@ The distribution of the square footage is right skewed, so we have decided to pe
 
 
 $$ln(sale\_price)  =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage)$$
-```{r, echo = FALSE, fig.align='center', }
+```{r, echo = FALSE, fig.align='center', out.width="70%", fig.height= 3}
 include_graphics('./images/Model3.png')
 ```
 
@@ -313,7 +314,7 @@ include_graphics('./images/Model3.png')
 In the third model, we added the age of the property as another control variable. Age is a relevant factor in real estate as it captures characteristics, such as home design, that are desirable for some home buyers. Newer homes have modern features while older homes may have historical significance. We decided not to use any transformations on this variable because it is already represented in a unit of years and performing a log function skewed the distribution. 
 
 $$ln(sale\_price)  =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age$$
-```{r, echo = FALSE, fig.align='center', }
+```{r, echo = FALSE, fig.align='center', out.width="70%", fig.height= 3}
 include_graphics('./images/Model3.png')
 ```
 
@@ -335,7 +336,8 @@ include_graphics('./images/Model4.png')
 The five boroughs of New York City – Brooklyn, Queens, Manhattan, Staten Island, and the Bronx – are all different geographical locations with their own characterestics. Manhattan is the hub of commerce and nightlife; Brooklyn and Queens are gentrified areas that are often targeted by young professionals; and the Bronx and Staten Island remain mostly residential while being far from many of the city’s main attractions. The sale price of a two-family home will be dependent on the borough that it is located in, and therefore, we have decided to include borough as our last control variable.
 
 
-$$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age + \beta_4median\_income+ \beta_5borough$$
+$$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age + $$
+$$\beta_4median\_income+ \beta_5borough$$
 ```{r, echo = FALSE, fig.align='center'}
 include_graphics('./images/Model5.png')
 ```
@@ -354,10 +356,11 @@ model5 <- lm(log(sale.price) ~ commercial.units + log(sqft) + age + median.incom
 
 A summary of the model coefficients is shown below in Table 2. Our results showed high statistical significance in all of the models across all the variables. 
 
+\setcounter{table}{1}
 
 ```{r results table, echo = FALSE, results = "asis"}
 
-
+options(width = 60)
 stargazer(
   model1, model2, model3, model4, model5,
     se = list(
@@ -367,8 +370,14 @@ stargazer(
     sqrt(diag(vcovHC(model4))),
     sqrt(diag(vcovHC(model5)))),
   type = 'latex',
-  title = 'Table 2. Summary of regression results'
+  title = 'Summary of regression results',
+  font.size = 'scriptsize',
+  flip = TRUE,
+  header = FALSE,
+  column.sep.width = "-10pt"
+
 )
+
 ```
 
 \newpage
@@ -418,10 +427,10 @@ While the income variables in our models were shown to be statistically signific
 
 There are a few limitations to the model as related to large sample assumptions for the classical linear model. The model uses data with unique observations. However, one may argue that home sales in the same zip code are dependent on each other as the sale of one property could increase the property value and sale price of a neighboring property. The variables cannot be represented in linear combinations of another so there is no collinearity issue. 
 
-The plots below provide insight into the linear conditional expectation, homoscedasticity, and normality of the residuals of our fifth model. In the Residuals vs Fitted plot, the mean of the residuals is close to 0, except for larger sale prices numbers (greater than exp(14) or $1.2M) the residuals gradually increase. We see the same pattern for the variance of the residuals (Scale-Location plot) which is a visual test for homoscedasticity. However, when the studentized Breusch-Pagan test is performed as a secondary check, our p-value gives us enough evidence to reject the null hypothesis that there is heteroscedasticity present in the model. Therefore, the homoscedastic error assumption of the classical linear model is met. Last, there is a heavy right tail in the Normal Q-Q plot which means that the residuals are not normally distributed. These indicate that there is another missing feature that can better explain the relationship with higher sale prices.
+The plots below (figure 16) provide insight into the linear conditional expectation, homoscedasticity, and normality of the residuals of our fifth model. In the Residuals vs Fitted plot, the mean of the residuals is close to 0, except for larger sale prices numbers (greater than exp(14) or $1.2M) the residuals gradually increase. We see the same pattern for the variance of the residuals (Scale-Location plot) which is a visual test for homoscedasticity. Therefore, the homoscedastic error assumption of the classical linear model is met. Last, there is a heavy right tail in the Normal Q-Q plot which means that the residuals are not normally distributed. These indicate that there is another missing feature that can better explain the relationship with higher sale prices.
 
-
-```{r plots for CLM assumptions, warning=FALSE, message=FALSE, echo = FALSE}
+\setcounter{figure}{15}
+```{r plots for CLM assumptions, warning=FALSE, message=FALSE, echo = FALSE, fig.show='hold',fig.align='center',out.width="70%", fig.height= 4, fig.cap= "Plots for CLM Assumptions"}
 
 plot(model5, which = 1)
 plot(model5, which = 2)
@@ -429,18 +438,15 @@ plot(model5, which = 3)
 
 ```
 
-```{r Breusch-Pagan test, echo = FALSE}
-lmtest::bptest(model5)
-```
-
-
 
 ## 5.2 Structural Limitations
 An omitted variable that is not measured and included in this dataset is property condition rating. This variable is used by appraisers during the sale process and is measured based on the overall physical condition of the property. The impact of the omitted variable can be evaluated by the following regressions:
 
-[ placeholder for latex: LogSales_price = Beta zero + Beta1(commercial units) + Beta2(log(sqft)) + Beta3(age) + Beta4(median.income) + Beta5(boro) + Beta6(conditional rating)]
 
-[placeholder for latex: conditional rating = delta(0) + delta(1)commercial unit]
+$$ln(sale\_price) =  \beta_0 + \beta_1commecial\_units + \beta_2ln(square\_footage) + \beta_3property\_age + $$ 
+$$\beta_4median\_income+\beta_5borough+ \beta_6property\_condition\_rating$$
+
+$$property\_condition\_rating =  \delta_0 + \delta_1commercial\_units $$
 
 We have already made the case that there is a positive relationship between sale price and commercial units, making Beta1 positive. Next, we can argue that the sale price will increase as the condition rating is higher, so that implies Beta6 is positive. We can also assume that there is a positive correlation between commercial units and conditional rating because businesses often have to adhere to strict safety standards before opening in a location, which would make delta1 positive. The product of beta6 and delta1 is positive, so the sign of the omitted variable bias is positive. Thus, beta1 + (beta 6 * delta1) would mean that the effect of commercial units in our model will be scaled away from zero (more positive bias). 
 
@@ -451,4 +457,3 @@ Homeowners and real estate investors might be able to use our model to guide the
 
 
 
-```
