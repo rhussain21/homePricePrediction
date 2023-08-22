@@ -204,14 +204,14 @@ party_difficulty <- party_difficulty %>%
 ggplot(party_difficulty, aes(fill=as.factor(how_difficult_for_r_to_vote),
                              x=pct,
                              y=post_party_id, label=pct)) + 
-  geom_bar(stat="identity") + geom_label_repel(label.size = 0.5, aes(label=paste0(sprintf("%1.0f", pct),"%")),
+  geom_bar(stat="identity") + geom_label_repel(label.size = 0.5,size = 6, aes(label=paste0(sprintf("%1.0f", pct),"%")),
                                                    position=position_stack(vjust=0.5)) +
   scale_fill_manual(values=c("green","yellow","orange","red","#6dede9")) + 
   scale_x_continuous(name="Percentage of Voters") + 
   theme_bw() + labs(fill = "Difficulty") + 
   scale_y_discrete(name="Party") +  ggtitle("Figure 3: Percentage of voters that experienced difficulty by party")+
-  theme(legend.position="bottom", plot.title = element_text(hjust = 0.5), text=element_text(size=18),
-        axis.text = element_text(size = 18), legend.text=element_text(size=18)) 
+  theme(legend.position="bottom", plot.title = element_text(hjust = 0.5), text=element_text(size=20),
+        axis.text = element_text(size = 20), legend.text=element_text(size=18)) 
                                           
   
 ```
